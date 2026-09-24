@@ -191,8 +191,8 @@ refreshes the slot grid.
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/bhanu87777/BookIt-Appointment-Booking-System.git
-cd BookIt-Appointment-Booking-System
+git clone https://github.com/goyalsgit/BookFlow-AI-Assisted-Conflict-Safe-Booking-Platform.git
+cd BookFlow-AI-Assisted-Conflict-Safe-Booking-Platform
 
 # 2. Install dependencies (npm workspaces installs client + server)
 npm install
@@ -312,12 +312,12 @@ Distributed under the **MIT License**. See [`LICENSE`](LICENSE) for details.
 
 ## 👤 Author
 
-**Bhanu Prakash M**
+**Devansh Goyal**
 
-[![GitHub](https://img.shields.io/badge/GitHub-bhanu87777-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/bhanu87777)
+[![GitHub](https://img.shields.io/badge/GitHub-goyalsgit-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/goyalsgit)
 
-> 💡 If BookIt helped or impressed you, consider giving the repo a ⭐ — it genuinely helps!
+> 💡 If BookFlow helped or impressed you, consider giving the repo a ⭐ — it genuinely helps!
 
 <div align="center">
-<sub>Built with React, Express, and PostgreSQL — and a healthy fear of double-bookings.</sub>
+<sub>Built with React, Express, and PostgreSQL — with booking correctness designed into the database.</sub>
 </div>
