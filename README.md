@@ -1,323 +1,215 @@
 <div align="center">
 
-# 📅 BookIt
+# BookFlow
 
-### Multi-Vertical Appointment Booking System
+### AI-Assisted Conflict-Safe Resource Booking Platform
 
-*Book anything — doctors, salons & turfs — with **zero double-bookings**. A full-stack booking platform where the database itself makes overlapping appointments impossible.*
+Find resources, understand live availability, and reserve time without allowing
+concurrent requests to create overlapping bookings.
 
-<br/>
-
-[![React](https://img.shields.io/badge/React_18-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://react.dev/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
-[![Express](https://img.shields.io/badge/Express-000000?style=for-the-badge&logo=express&logoColor=white)](https://expressjs.com/)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
-[![Zod](https://img.shields.io/badge/Zod-3E67B1?style=for-the-badge&logo=zod&logoColor=white)](https://zod.dev/)
-[![JWT](https://img.shields.io/badge/JWT-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=white)](https://jwt.io/)
-
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](LICENSE)
-![Status](https://img.shields.io/badge/status-portfolio_project-success?style=flat-square)
-![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)
+[![React](https://img.shields.io/badge/React-18-20232A?logo=react&logoColor=61DAFB)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Vite](https://img.shields.io/badge/Vite-6-646CFF?logo=vite&logoColor=white)](https://vitejs.dev/)
+[![Express](https://img.shields.io/badge/Express-4-000000?logo=express&logoColor=white)](https://expressjs.com/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![License](https://img.shields.io/badge/license-MIT-22c55e)](LICENSE)
 
 </div>
 
----
+## Overview
 
-## 📖 Overview
+BookFlow is a full-stack, multi-tenant scheduling workspace for businesses
+that manage bookable resources. A resource can be a room, sports court, staff
+member, lab instrument, or any other capacity that needs a schedule.
 
-**BookIt** is a full-stack, multi-vertical appointment booking platform for three
-kinds of business — **doctors & clinics, salons & grooming, and sports turfs &
-courts**. Customers browse providers, see **real-time bookable slots** computed
-from each provider's live schedule, and book or cancel in a few clicks. Admins
-manage providers, weekly schedules, services, breaks, time-off and every booking
-from a dedicated dashboard.
+Customers can browse resources, use the optional AI assistant, see ranked live
+availability, place a five-minute hold, confirm or reschedule a booking, and
+join a waitlist. Business owners manage isolated workspaces, locations,
+resources, services, weekly schedules, time off, operations, notifications, and
+CSV exports.
 
-The headline feature is **correctness under pressure**: two people can *never*
-hold the same slot, even in a race between concurrent requests. BookIt guarantees
-this with **three independent layers** — a per-provider advisory lock, in-transaction
-slot re-validation, and a PostgreSQL GiST **exclusion constraint** that makes an
-overlapping booking impossible at the database level.
+## Screenshots
 
-> **The one-liner:** a React + Vite SPA talks to an Express + TypeScript API that
-> validates every request with Zod, computes availability from live schedules, and
-> leans on PostgreSQL exclusion constraints + advisory locks so double-booking is
-> impossible by construction — not by hope.
+### Customer workspace
 
-<div align="center">
+The customer experience provides resource discovery, ranked recommendations,
+AI-assisted search, protected holds, bookings, waitlists, and notifications.
 
-**🔑 Seeded logins** &nbsp;·&nbsp; admin: `admin@bookit.local` / `admin123` &nbsp;·&nbsp; customer: `customer@bookit.local` / `customer123`
+<p align="center">
+  <img src="assets/screenshots/home.png" alt="BookFlow customer workspace" width="92%" />
+</p>
 
-</div>
+### Business operations dashboard
 
----
+The admin workspace gives business owners an operational view of upcoming
+bookings, resources, schedules, and customer activity.
 
-## 📸 Screenshots
+<p align="center">
+  <img src="assets/screenshots/admin-dashboard.png" alt="BookFlow business operations dashboard" width="92%" />
+</p>
 
-### Home — *pick a category and go*
-> A hero and three category cards (doctors / salons / turfs), plus a feature strip: live slot availability, conflict-proof booking, and email confirmations.
-
-<div align="center">
-  <img src="assets/screenshots/home.png" alt="BookIt customer home page" width="100%" />
-</div>
-
-### Admin Dashboard — *the whole operation at a glance*
-> Today's load, next-7-days pipeline, monthly revenue, 30-day cancel rate, active providers & customers, a per-provider upcoming-load table, and recent bookings.
-
-<div align="center">
-  <img src="assets/screenshots/admin-dashboard.png" alt="BookIt admin dashboard" width="100%" />
-</div>
+### Booking and resource management
 
 <table>
   <tr>
-    <td width="50%">
-      <b>🗓️ 3-Step Booking Flow</b><br/>
-      <sub>Service → date & 14-day strip → time slots grouped Morning / Afternoon / Evening, computed live.</sub><br/><br/>
-      <img src="assets/screenshots/booking-flow.png" alt="Booking flow" />
+    <td width="50%" align="center">
+      <strong>Live booking flow</strong><br />
+      <sub>Service, date, and availability selection with live slot calculation.</sub><br /><br />
+      <img src="assets/screenshots/booking-flow.png" alt="BookFlow live booking flow" width="100%" />
     </td>
-    <td width="50%">
-      <b>🔎 Browse Providers</b><br/>
-      <sub>Searchable provider list per category, with services, pricing and hours.</sub><br/><br/>
-      <img src="assets/screenshots/browse.png" alt="Browse providers" />
+    <td width="50%" align="center">
+      <strong>Resource management</strong><br />
+      <sub>Business owners manage resources, services, schedules, and time off.</sub><br /><br />
+      <img src="assets/screenshots/admin-providers.png" alt="BookFlow resource management" width="100%" />
     </td>
   </tr>
   <tr>
-    <td width="50%">
-      <b>📋 Admin Bookings</b><br/>
-      <sub>Filter by status / provider / date, run complete / no-show / cancel actions, and see the audit history.</sub><br/><br/>
-      <img src="assets/screenshots/admin-bookings.png" alt="Admin bookings management" />
+    <td width="50%" align="center">
+      <strong>Booking operations</strong><br />
+      <sub>Review, filter, and update booking status from the business workspace.</sub><br /><br />
+      <img src="assets/screenshots/admin-bookings.png" alt="BookFlow booking operations" width="100%" />
     </td>
-    <td width="50%">
-      <b>🕐 Day View</b><br/>
-      <sub>A visual timeline of every booking across all providers for a chosen day.</sub><br/><br/>
-      <img src="assets/screenshots/admin-day-view.png" alt="Admin day view timeline" />
+    <td width="50%" align="center">
+      <strong>Day view</strong><br />
+      <sub>See scheduled activity across resources for a selected day.</sub><br /><br />
+      <img src="assets/screenshots/admin-day-view.png" alt="BookFlow day view" width="100%" />
     </td>
   </tr>
 </table>
 
----
+## What makes it special
 
-## ✨ Features
+### Three layers against double-booking
 
-### 🧑‍💻 Customer side
-- Browse providers by category (**doctor / salon / turf**) with search, **star ratings & reviews**.
-- Per-provider service catalog — duration, buffer time, price and **payment policy** (pay-at-venue / deposit / full prepay).
-- **Live slot availability** computed from weekly schedules, breaks, time-off and existing bookings.
-- Clean **3-step booking flow**: service → date & slot → details, with **coupon codes** and **loyalty-point redemption**.
-- **Recurring series** — book weekly / biweekly runs (up to 12 sessions) with skip-and-report for unavailable dates.
-- **Customer accounts** (optional — guest checkout always works): booking history, favorites ❤, loyalty points; past guest bookings link automatically on signup.
-- Self-service **manage page**: look up by code + email, **reschedule to a new slot**, cancel with automatic slot release and **policy-based refunds**.
-- **Waitlist**: full day? Get an email the moment a cancellation frees a slot.
-- 🌙 **Dark mode** across the whole app.
+Two customers requesting the same slot at the same time cannot both win:
 
-### 💳 Payments (simulated gateway, production-shaped)
-- Per-service policy: pay at venue, **deposit %**, or **full prepayment**.
-- `pending_payment` bookings **hold the slot at the database level** for a configurable window; expired holds release automatically (sweeper + inline expiry).
-- Built-in **MockPay** gateway — HMAC-signed checkout mirroring Razorpay's flow, so a real adapter drops in behind the same `PaymentProvider` interface. Zero external accounts needed.
-- **Refund policy engine** (full / fee / none by time-to-appointment), automatic refunds on cancellation, admin manual refunds, printable **receipts**.
-- **Coupons** (percent / fixed, windows, usage caps) and **loyalty points** (earn on completion, redeem up to 50% of price — race-safe).
+1. A PostgreSQL advisory transaction lock serializes attempts for one resource.
+2. Availability is recomputed inside the booking transaction.
+3. A PostgreSQL GiST exclusion constraint rejects overlapping active time ranges.
 
-### 📬 Notifications
-- **Transactional outbox + dispatcher**: every email (confirmation, cancellation, reschedule, receipt, reminders, waitlist, series) is queued in Postgres and delivered with retries + exponential backoff — restarts lose nothing.
-- **Automated reminders** 24h and 1h before each appointment (voided/re-planned on cancel & reschedule).
-- **`.ics` calendar invites** attached to confirmations (REQUEST) and cancellations (CANCEL) with stable UIDs and SEQUENCE bumps.
-- Channel abstraction — SMS/WhatsApp adapters can plug in without touching the dispatcher.
+Different resources can still be booked concurrently. Preparation and cleanup
+buffers are included in the protected range, while adjacent half-open ranges
+remain bookable.
 
-### 🛠️ Admin panel
-- **Dashboard + analytics** — booked value vs collected-online vs refunded, bookings & net revenue per day, weekday×hour **peak-hours heatmap**, top services, outcome rates, new-vs-returning customers (hand-rolled SVG, light/dark aware).
-- **Bookings table** — filters, complete / no-show / cancel actions, **CSV export** (BOM + injection-safe).
-- **Day view & week view** — visual timelines with click-through booking details.
-- **Customer CRM** — searchable customer list with lifetime spend, no-show counts, loyalty balance, full history and private notes.
-- **Payments & coupons** — payment ledger with refund actions; coupon CRUD.
-- **Reviews moderation** — hide/unhide customer reviews.
-- **Waitlist management**, provider/schedule/time-off/service CRUD as before.
+### AI that cannot bypass booking safety
 
-### ⚙️ Platform
-- **JWT-authenticated** admin + customer APIs (separate token kinds); **Zod** request validation everywhere.
-- Email via **SMTP** (nodemailer); with no SMTP config, rendered emails land in `server/outbox/*.html` — so the flow works end-to-end with zero setup.
-- **Booking audit trail** (`booking_events`): created, status changes, payments, refunds, reschedules, emails sent.
+The optional Gemini integration converts messages such as “a court tomorrow at
+6 PM for an hour” into structured resource, service, date, time, and duration
+preferences. Zod validates the response and the server verifies the result
+against the real catalog.
 
----
+The assistant only prepares search preferences. It cannot claim that a slot is
+available or create, confirm, cancel, or reschedule a booking. The normal
+transactional booking flow remains the only authority. Deterministic mock and
+disabled fallbacks allow local development without an AI key.
 
-## 🎯 The flagship: zero double-booking
+## Features
 
-Double-booking is prevented with **three independent layers**, so even a race
-between concurrent requests is safe:
+### Customer experience
 
-| Layer | Mechanism | What it guarantees |
-|:-----:|-----------|--------------------|
-| **1** | `pg_advisory_xact_lock(42, provider_id)` | Serialises concurrent bookings **per provider**; different providers book fully in parallel. Released automatically at commit/rollback. |
-| **2** | In-transaction slot re-validation | The requested start must still be a slot the availability engine would generate *right now* — a hand-crafted API call can't book a closed day. |
-| **3** | Postgres GiST **exclusion constraint** | The last line of defence. Even raw SQL cannot persist an overlap. |
+- Registration, login, profile, and booking history
+- Resource catalog with services, locations, durations, prices, and schedules
+- Ranked recommendations based on resource, service, date, time, flexibility, and demand
+- Timezone-aware availability with breaks, time off, buffers, lead time, and booking horizon
+- Five-minute holds, confirmation, cancellation, and version-checked rescheduling
+- Waitlist requests with expiry-aware promotion after capacity is released
+- In-app notifications and booking-event history
 
-```sql
-CONSTRAINT bookings_no_overlap EXCLUDE USING gist (
-  provider_id WITH =,
-  tstzrange(starts_at, ends_at) WITH &&
-) WHERE (status IN ('pending_payment', 'confirmed', 'completed'))
+### Business workspace
+
+- Organization and location management with tenant isolation
+- Resource and service creation and editing
+- Weekly schedule windows and dated time-off blocks
+- Resource activation and operational booking status updates
+- Notifications, utilization data, audit events, and CSV export
+- Optional address suggestions through the Photon geocoding API
+
+## Architecture
+
+```mermaid
+flowchart LR
+    Browser[React + Vite] -->|JSON REST| API[Express + TypeScript]
+    API -->|parameterized SQL| DB[(PostgreSQL)]
+    API --> Auth[JWT + bcrypt]
+    API --> AI[Optional Gemini assistant]
+    API --> Geo[Optional Photon geocoding]
+    DB --> Rules[Advisory locks + GiST constraints]
 ```
 
-The partial `WHERE` means cancelled / no-show bookings automatically free their
-slot — and a booking that's **being paid for** (`pending_payment`) still holds
-its slot until it's captured or the hold expires. A conflicting insert fails
-with SQLSTATE `23P01`, which the API maps to **`409 Conflict`**, and the UI
-refreshes the slot grid.
+The active API is mounted at `/api/flow`. It uses raw parameterized SQL through
+`pg` and Zod schemas at the request boundary. PostgreSQL also stores shared
+rate-limit counters, so the running application does not depend on Redis.
+Redis is included only as an optional Compose learning service.
 
-> 📐 The full request-to-database walkthrough lives in **[`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)**.
+## Technology
 
----
+| Area | Tools |
+| --- | --- |
+| Frontend | React 18, TypeScript, Vite, React Router |
+| Backend | Node.js, Express, TypeScript, REST APIs |
+| Data | PostgreSQL, `pg`, raw parameterized SQL, migrations |
+| Reliability | Advisory locks, GiST exclusion constraints, transactions |
+| Validation and security | Zod, JWT, bcrypt, organization authorization |
+| Optional integrations | Google Gemini, Photon geocoding |
+| Operations | Docker Compose, npm workspaces, maintenance worker |
 
-## 🛠️ Tech Stack
+## Run locally
 
-| Layer | Technology |
-|-------|-----------|
-| **Frontend** | React 18 · TypeScript 5 · Vite 6 · React Router 6 |
-| **Backend** | Node.js · Express 4 · TypeScript 5 |
-| **Database** | PostgreSQL 13+ (GiST exclusion constraints, advisory locks, range types) |
-| **Validation** | Zod |
-| **Auth** | JWT (jsonwebtoken) + bcryptjs |
-| **Email** | Nodemailer (SMTP, with HTML outbox fallback) |
-| **Tooling** | npm workspaces · tsx · concurrently |
+### Requirements
 
----
+- Node.js 22 or newer
+- Docker with Compose
 
-## 🚀 Getting Started
-
-### Prerequisites
-- **Node.js** 18+
-- **PostgreSQL** 13+ running locally (or a hosted connection string)
-
-### Installation
+### Setup
 
 ```bash
-# 1. Clone the repository
 git clone https://github.com/goyalsgit/BookFlow-AI-Assisted-Conflict-Safe-Booking-Platform.git
 cd BookFlow-AI-Assisted-Conflict-Safe-Booking-Platform
-
-# 2. Install dependencies (npm workspaces installs client + server)
 npm install
-
-# 3. Configure the server environment
 cp server/.env.example server/.env
-#   → set DATABASE_URL to your local Postgres, and change JWT_SECRET
-
-# 4. Create the database, apply the schema, and load demo data
-npm run db:setup          # 6 providers, services, schedules, sample bookings
-
-# 5. Run the API (:4000) and client (:5173) together
+docker compose up -d db
+npm run db:setup
 npm run dev
 ```
 
-Open **http://localhost:5173** — the admin panel is at **http://localhost:5173/admin**
-(`admin@bookit.local` / `admin123`).
+Open the client at `http://localhost:5175`. The API runs at
+`http://localhost:4170`. Configure `AI_PROVIDER=gemini` and
+`GEMINI_API_KEY` only when Gemini assistance is needed.
 
----
+## Verification
 
-## 📋 Usage
-
-| Command | Description |
-|---------|-------------|
-| `npm run dev` | Start API (:4000) **and** client (:5173) together |
-| `npm run build` | Production build of server + client |
-| `npm run db:migrate` | Create the database (if absent) and apply the schema |
-| `npm run db:seed` | Load demo providers, services, schedules & bookings |
-| `npm run db:setup` | `db:migrate` + `db:seed` in one step |
-
-**No mail provider? No problem.** Leave SMTP unset and every confirmation /
-cancellation email is written to `server/outbox/*.html` — open them in a browser
-to see exactly what the customer would receive.
-
----
-
-## 📁 Project Structure
-
-```
-BookIt-Appointment-Booking-System/
-├── assets/
-│   └── screenshots/          # README imagery
-├── docs/
-│   ├── ARCHITECTURE.md       # request-to-database walkthrough
-│   ├── BookIt_1_Features_Walkthrough.pdf
-│   └── BookIt_2_Codebase_Guide.pdf
-├── client/                   # React + Vite SPA
-│   └── src/
-│       ├── pages/            # home, browse, booking flow, confirmation, manage
-│       ├── admin/            # dashboard, bookings, day view, provider editor
-│       ├── components/       # shared layout / shell
-│       ├── api.ts            # typed fetch wrapper (attaches admin JWT)
-│       └── App.tsx           # route table
-├── server/                   # Express + TypeScript API
-│   └── src/
-│       ├── db/
-│       │   ├── schema.sql     # schema incl. exclusion constraints
-│       │   ├── migrate.ts     # creates DB + applies schema (idempotent)
-│       │   └── seed.ts        # demo data
-│       ├── services/
-│       │   ├── slots.ts       # availability engine
-│       │   ├── booking.ts     # transactional booking (locks + validation)
-│       │   └── email.ts       # confirmation / cancellation emails
-│       ├── routes/            # public.ts + admin.ts
-│       ├── middleware/        # auth (JWT) + central error handler
-│       └── config.ts          # typed env config
-├── server/.env.example
-├── LICENSE
-└── package.json              # npm workspaces root
+```bash
+npm run typecheck
+npm run build
+npm test
 ```
 
----
+The integration suite uses a disposable PostgreSQL database. It covers 20-way
+hold contention, direct SQL overlap rejection, buffers, hold expiry,
+confirmation, cancellation, rescheduling, waitlist promotion, authorization,
+organization isolation, resource setup, recommendations, and DST behavior.
 
-## 🔌 API Quick Reference
+## Scope notes
 
-| Method | Path | Description |
-| --- | --- | --- |
-| `GET` | `/api/providers?type=doctor` | Providers (with services) in a category |
-| `GET` | `/api/providers/:id/slots?serviceId&date=YYYY-MM-DD` | Available slots for a date |
-| `POST` | `/api/bookings` | Create a booking (**409** on conflict) |
-| `GET` | `/api/bookings/lookup?code&email` | Look up a booking |
-| `POST` | `/api/bookings/:code/cancel` | Customer cancellation |
-| `POST` | `/api/auth/login` | Admin login → JWT |
-| `GET` | `/api/admin/stats` | Dashboard metrics |
-| `GET` / `PATCH` | `/api/admin/bookings…` | List / change booking status |
-| `PUT` | `/api/admin/providers/:id/schedule` | Replace weekly schedule + breaks |
-| `POST` / `DELETE` | `/api/admin/providers/:id/time-off` · `/api/admin/time-off/:id` | Manage time-off |
+- Prices are informational in the active BookFlow flow; payment collection is not active.
+- Notifications are in-app/local development outputs; production email/SMS delivery is not assumed.
+- Redis is optional and is not used by the running application.
+- The assistant provides preferences only and never performs booking actions.
 
----
+## Documentation
 
-## 🔭 Future Improvements
+- [Architecture and request flow](docs/ARCHITECTURE.md)
+- [Verified flow and schema](docs/VERIFIED_FLOW_AND_SCHEMA.md)
+- [Audit and known limitations](docs/AUDIT.md)
+- [Interview guide](docs/INTERVIEW_GUIDE.md)
+- [Scaling and Redis notes](docs/SCALING_AND_REDIS.md)
 
-- [ ] **Real payment gateway** — the `PaymentProvider` interface is Razorpay-shaped; add `razorpay.ts` + a webhook route and set `PAYMENT_PROVIDER=razorpay`
-- [ ] **SMS / WhatsApp reminders** — register a new channel in the notification dispatcher
-- [ ] **Provider self-service portal** — providers manage their own schedules
-- [ ] **Test suite** — unit tests for the slot engine + integration tests on the conflict layers
-
----
-
-## 🤝 Contributing
-
-Contributions, issues, and feature requests are welcome!
-
-1. Fork the project
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
----
-
-## 📄 License
-
-Distributed under the **MIT License**. See [`LICENSE`](LICENSE) for details.
-
----
-
-## 👤 Author
+## Author
 
 **Devansh Goyal**
 
-[![GitHub](https://img.shields.io/badge/GitHub-goyalsgit-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/goyalsgit)
+[GitHub: goyalsgit](https://github.com/goyalsgit)
 
-> 💡 If BookFlow helped or impressed you, consider giving the repo a ⭐ — it genuinely helps!
+## License
 
-<div align="center">
-<sub>Built with React, Express, and PostgreSQL — with booking correctness designed into the database.</sub>
-</div>
+This project is available under the [MIT License](LICENSE).
