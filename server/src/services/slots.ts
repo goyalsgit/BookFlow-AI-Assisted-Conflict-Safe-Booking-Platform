@@ -1,121 +1,35 @@
 import type pg from 'pg';
-
-export interface Slot {
-  start: string; // ISO
-  end: string;   // ISO
-}
-
-export interface Interval {
-  start: Date;
-  end: Date;
-}
-
-const MIN = 60000;
-
-const overlaps = (aStart: Date, aEnd: Date, b: Interval) => aStart < b.end && aEnd > b.start;
-
-/** "09:30:00" on `date` (local server time) -> Date */
-function timeOnDate(date: string, time: string): Date {
-  const [h, m, s] = time.split(':').map(Number);
-  const d = new Date(`${date}T00:00:00`);
-  d.setHours(h, m, s ?? 0, 0);
-  return d;
-}
-
-/**
- * Compute bookable slots for a provider + service on a given date.
- *
- * Algorithm:
- *  1. Take the provider's working windows for that weekday.
- *  2. Walk each window in `slot_step_min` increments.
- *  3. A candidate [t, t + duration) is kept only if, after padding it with the
- *     service's buffer on both sides, it doesn't touch a break, time-off
- *     period, or an existing active booking — and it respects the minimum
- *     lead time and booking horizon.
- *
- * Runs against any pg client, so the booking transaction can re-validate a
- * requested slot with the exact same logic while holding the provider lock.
- */
-export async function computeSlots(
-  db: pg.Pool | pg.PoolClient,
-  providerId: number,
-  serviceId: number,
-  date: string, // YYYY-MM-DD
-  excludeBookingId?: number // reschedule: the booking's own slot must not block the move
-): Promise<{ slots: Slot[]; provider: any; service: any }> {
-  const { rows: [provider] } = await db.query(
-    'SELECT * FROM providers WHERE id = $1 AND active', [providerId]
-  );
-  if (!provider) throw Object.assign(new Error('Provider not found'), { status: 404 });
-
-  const { rows: [service] } = await db.query(
-    'SELECT * FROM services WHERE id = $1 AND provider_id = $2 AND active', [serviceId, providerId]
-  );
-  if (!service) throw Object.assign(new Error('Service not found'), { status: 404 });
-
-  const dayStart = new Date(`${date}T00:00:00`);
-  if (isNaN(dayStart.getTime())) throw Object.assign(new Error('Invalid date'), { status: 400 });
-  const dayEnd = new Date(dayStart.getTime() + 24 * 60 * MIN);
-  const weekday = dayStart.getDay();
-
-  const now = new Date();
-  const earliestStart = new Date(now.getTime() + provider.min_lead_min * MIN);
-  const horizonEnd = new Date(now.getTime() + provider.booking_horizon_days * 24 * 60 * MIN);
-  if (dayStart > horizonEnd) return { slots: [], provider, service };
-
-  // sequential on purpose: `db` may be a single PoolClient (inside the booking
-  // transaction), and pg forbids concurrent queries on one client
-  const windows = await db.query(
-    'SELECT start_time, end_time FROM schedules WHERE provider_id = $1 AND weekday = $2 ORDER BY start_time',
-    [providerId, weekday]
-  );
-  const breaks = await db.query(
-    'SELECT start_time, end_time FROM breaks WHERE provider_id = $1 AND weekday = $2',
-    [providerId, weekday]
-  );
-  const timeOff = await db.query(
-    'SELECT starts_at, ends_at FROM time_off WHERE provider_id = $1 AND starts_at < $3 AND ends_at > $2',
-    [providerId, dayStart, dayEnd]
-  );
-  const bookings = await db.query(
-    // status list MUST match the bookings_no_overlap constraint's WHERE
-    // clause exactly — pending_payment holds its slot while being paid for
-    `SELECT starts_at, ends_at FROM bookings
-     WHERE provider_id = $1 AND status IN ('pending_payment','confirmed','completed')
-       AND starts_at < $3 AND ends_at > $2
-       AND ($4::int IS NULL OR id <> $4)`,
-    [providerId, dayStart, dayEnd, excludeBookingId ?? null]
-  );
-
-  const blocked: Interval[] = [
-    ...breaks.rows.map((b) => ({
-      start: timeOnDate(date, b.start_time),
-      end: timeOnDate(date, b.end_time),
-    })),
-    ...timeOff.rows.map((t) => ({ start: new Date(t.starts_at), end: new Date(t.ends_at) })),
-    ...bookings.rows.map((b) => ({ start: new Date(b.starts_at), end: new Date(b.ends_at) })),
-  ];
-
-  const step = provider.slot_step_min * MIN;
-  const duration = service.duration_min * MIN;
-  const buffer = service.buffer_min * MIN;
-  const slots: Slot[] = [];
-
-  for (const w of windows.rows) {
-    const winStart = timeOnDate(date, w.start_time);
-    const winEnd = timeOnDate(date, w.end_time);
-    for (let t = winStart.getTime(); t + duration <= winEnd.getTime(); t += step) {
-      const start = new Date(t);
-      const end = new Date(t + duration);
-      if (start < earliestStart) continue;
-      if (start > horizonEnd) break;
-      // pad with buffer so back-to-back bookings keep the prep/cleanup gap
-      const padStart = new Date(t - buffer);
-      const padEnd = new Date(t + duration + buffer);
-      if (blocked.some((b) => overlaps(padStart, padEnd, b))) continue;
-      slots.push({ start: start.toISOString(), end: end.toISOString() });
-    }
-  }
-
-  return { slots, provider, service };
+import { dateSchema } from '../flow/time.js';
+export interface Slot { start: string; end: string; }
+export interface Interval { start: Date; end: Date; }
+/** PostgreSQL expands local schedules in the organization's IANA timezone.
+ * Walking UTC instants preserves both occurrences of a repeated DST hour and skips nonexistent times. */
+export async function computeSlots(db: pg.Pool | pg.PoolClient, providerId:number, serviceId:number, date:string, excludeBookingId?:number):Promise<{slots:Slot[];provider:any;service:any}> {
+ dateSchema.parse(date);
+ const {rows:[provider]}=await db.query(`SELECT p.*,o.timezone FROM providers p JOIN organizations o ON o.id=p.organization_id WHERE p.id=$1 AND p.active`,[providerId]);
+ if(!provider) throw Object.assign(new Error('Resource not found'),{status:404});
+ const {rows:[service]}=await db.query(`SELECT s.* FROM services s JOIN resource_services rs ON rs.service_id=s.id WHERE rs.resource_id=$1 AND s.id=$2 AND s.active`,[providerId,serviceId]);
+ if(!service) throw Object.assign(new Error('Service not found'),{status:404});
+ const {rows}=await db.query(`
+ WITH windows AS (
+ SELECT ( $3::date + start_time ) AT TIME ZONE $4 AS opening,
+        ( $3::date + end_time ) AT TIME ZONE $4 AS closing
+ FROM schedules WHERE provider_id=$1 AND weekday=extract(dow FROM $3::date)
+ ), candidates AS (
+ SELECT t AS starts_at, t + make_interval(mins=>$5) AS ends_at,
+        t - make_interval(mins=>$6) AS blocked_start,
+        t + make_interval(mins=>$5+$7) AS blocked_end, opening, closing
+ FROM windows CROSS JOIN LATERAL generate_series(opening,closing,make_interval(mins=>$8)) t
+ ) SELECT DISTINCT starts_at,ends_at FROM candidates c
+ WHERE $2::int > 0 AND blocked_start>=opening AND blocked_end<=closing
+ AND starts_at >= now()+make_interval(mins=>$9)
+ AND starts_at <= now()+make_interval(days=>$10)
+ AND NOT EXISTS(SELECT 1 FROM breaks b WHERE b.provider_id=$1 AND b.weekday=extract(dow FROM $3::date)
+ AND c.blocked_start < (($3::date+b.end_time) AT TIME ZONE $4) AND c.blocked_end > (($3::date+b.start_time) AT TIME ZONE $4))
+ AND NOT EXISTS(SELECT 1 FROM time_off t WHERE t.provider_id=$1 AND c.blocked_start<t.ends_at AND c.blocked_end>t.starts_at)
+ AND NOT EXISTS(SELECT 1 FROM bookings b WHERE b.provider_id=$1 AND b.status IN('held','pending_payment','confirmed','completed')
+ AND (b.status NOT IN('held','pending_payment') OR b.expires_at>now())
+ AND ($11::int IS NULL OR b.id<>$11) AND c.blocked_start<b.blocked_end AND c.blocked_end>b.blocked_start)
+ ORDER BY starts_at`,[providerId,serviceId,date,provider.timezone,service.duration_min,service.buffer_before_min,service.buffer_min,provider.slot_step_min,provider.min_lead_min,provider.booking_horizon_days,excludeBookingId??null]);
+ return {provider,service,slots:rows.map(r=>({start:r.starts_at.toISOString(),end:r.ends_at.toISOString()}))};
 }

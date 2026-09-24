@@ -5,10 +5,16 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc -p tsconfig.json && node ../scripts/copy-sql.mjs",
     "start": "node dist/index.js",
     "db:migrate": "tsx src/db/migrate.ts",
-    "db:seed": "tsx src/db/seed.ts"
+    "db:seed": "tsx src/db/seed-flow.ts",
+    "cleanup": "tsx src/flow/cleanup.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "tsx --test test/*.test.ts",
+    "db:migrate:prod": "node dist/db/migrate.js",
+    "db:bootstrap": "tsx src/db/bootstrap.ts",
+    "worker": "node dist/flow/worker.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -28,6 +34,8 @@
     "@types/node": "^22.10.5",
     "@types/nodemailer": "^6.4.17",
     "@types/pg": "^8.11.10",
+    "@types/supertest": "^7.2.1",
+    "supertest": "^7.3.0",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2"
   }

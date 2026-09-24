@@ -26,11 +26,11 @@ declare global {
 }
 
 export function signAdminToken(claims: Omit<AdminClaims, 'kind'>) {
-  return jwt.sign({ ...claims, kind: 'admin' }, config.jwtSecret, { expiresIn: '12h' });
+  return jwt.sign({ ...claims, kind: 'admin' }, config.jwtSecret, { expiresIn: '4h' });
 }
 
 export function signCustomerToken(claims: Omit<CustomerClaims, 'kind'>) {
-  return jwt.sign({ ...claims, kind: 'customer' }, config.jwtSecret, { expiresIn: '30d' });
+  return jwt.sign({ ...claims, kind: 'customer' }, config.jwtSecret, { expiresIn: '8h' });
 }
 
 /** Verify the Bearer token, if any. Returns the payload or null. */
@@ -53,6 +53,12 @@ export function requireAdmin(req: Request, res: Response, next: NextFunction) {
     return res.status(401).json({ error: 'Invalid or expired token' });
   }
   req.admin = payload as AdminClaims;
+  next();
+}
+
+export function optionalAdmin(req: Request, _res: Response, next: NextFunction) {
+  const payload = verifyBearer(req);
+  if (payload && payload.kind === 'admin') req.admin = payload as AdminClaims;
   next();
 }
 
